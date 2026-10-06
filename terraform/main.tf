@@ -10,14 +10,14 @@ terraform {
 }
 
 provider "aws" {
-  region = "ap-south-1"
+  region = var.aws_region
 }
 
 resource "aws_instance" "homevault" {
-  ami           = "ami-01a00762f46d584a1"
-  instance_type = "t3.micro"
+  ami           = var.ami_id
+  instance_type = var.instance_type
 
-  key_name = "vault"
+  key_name = var.key_name
 
   tags = {
     Name = "homevault-server"
