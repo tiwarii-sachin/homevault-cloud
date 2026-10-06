@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HomeVault</title>
+<style>
+:root{--bg:#0f172a;--side:#111b30;--card:#1a2438;--line:#243049;--tx:#e8edf7;--mut:#8493ae;--pri:#3b82f6;--inp:#172033;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root:not([data-theme="dark"]){--bg:#f1f5f9;--side:#fff;--card:#fff;--line:#dbe3ef;--tx:#0f172a;--mut:#64748b;--inp:#f8fafc}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f172a;--side:#111b30;--card:#1a2438;--line:#243049;--tx:#e8edf7;--mut:#8493ae;--inp:#172033}}
+:root[data-theme="dark"]{--bg:#0f172a;--side:#111b30;--card:#1a2438;--line:#243049;--tx:#e8edf7;--mut:#8493ae;--inp:#172033}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.4 "Segoe UI",system-ui,sans-serif;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:240px 1fr 300px;min-height:100vh}
+aside{background:var(--side);border-right:1px solid var(--line);padding:20px 12px;display:flex;flex-direction:column;gap:6px}
+.logo{font-size:22px;font-weight:700;padding:0 8px 16px;display:flex;gap:10px;align-items:center}
+.user{display:flex;gap:10px;align-items:center;padding:8px;border-bottom:1px solid var(--line);margin-bottom:12px;padding-bottom:18px}
+.av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);display:grid;place-items:center;font-weight:700;color:#fff}
+.user small,.mut{color:var(--mut)}
+.nav{background:none;border:0;text-align:left;padding:11px 14px;border-radius:10px;cursor:pointer;display:flex;gap:12px;align-items:center;color:var(--mut)}
+.nav.on{background:var(--pri);color:#fff}.nav:hover:not(.on){background:var(--inp)}
+.nav b{margin-left:auto;background:rgba(255,255,255,.25);border-radius:99px;padding:0 8px;font-size:12px}
+.sec{font-size:12px;letter-spacing:.08em;color:var(--mut);padding:14px 8px 4px;font-weight:600}
+.sp{flex:1}
+.tg{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;color:var(--mut)}
+.sw{width:50px;height:28px;border-radius:99px;background:var(--pri);border:0;position:relative;cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+:root[data-theme="light"] .sw{background:#94a3b8}:root[data-theme="light"] .sw::after{right:25px}
+main{padding:36px 40px;min-width:0}
+.top{display:flex;gap:14px}.top input{flex:1;background:var(--inp);border:1px solid var(--line);border-radius:12px;padding:13px 16px;outline:0}
+.top input:focus,.btn:focus-visible,select:focus-visible{outline:2px solid var(--pri)}
+.btn{background:var(--pri);border:0;color:#fff;border-radius:9px;padding:10px 22px;cursor:pointer}
+.tabs{display:inline-flex;background:var(--card);padding:5px;border-radius:12px;margin:24px 0 8px;border:1px solid var(--line)}
+.tabs button{background:none;border:0;padding:9px 22px;border-radius:9px;cursor:pointer;color:var(--mut)}
+.tabs .on{background:var(--pri);color:#fff}
+h2{margin:18px 0 14px;font-size:19px}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.cat{border-radius:16px;padding:46px 26px 24px;color:#fff;position:relative;overflow:hidden;cursor:pointer;border:0;text-align:left}
+.cat::after{content:"";position:absolute;top:-30px;right:-30px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.18)}
+.cat .i{font-size:30px;display:block;margin-bottom:34px}.cat b{font-size:18px;display:block}.cat span{opacity:.85}
+.c-photos{background:linear-gradient(135deg,#2563eb,#3b82f6)}.c-documents{background:linear-gradient(135deg,#db2777,#ec4899)}.c-videos{background:linear-gradient(135deg,#ea580c,#f97316)}.c-others{background:linear-gradient(135deg,#059669,#10b981)}
+.bar{display:flex;gap:10px;align-items:center;margin:30px 0 8px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--line);color:var(--mut);border-radius:99px;padding:8px 20px;cursor:pointer}
+.pill.on{background:var(--pri);border-color:var(--pri);color:#fff}
+select{background:var(--inp);border:1px solid var(--line);border-radius:9px;padding:10px 14px}
+.vb{background:var(--inp);border:1px solid var(--line);border-radius:8px;width:40px;height:40px;cursor:pointer}.vb.on{background:var(--pri);color:#fff}
+.list{background:var(--card);border-radius:16px;border:1px solid var(--line);overflow:hidden;margin-top:14px}
+.row{display:grid;grid-template-columns:56px 1fr 120px 100px 150px 80px;align-items:center;padding:12px 24px;gap:6px}
+.row.h{font-size:12px;letter-spacing:.08em;color:var(--mut);font-weight:600;border-bottom:1px solid var(--line)}
+.row:not(.h):hover{background:var(--inp)}
+.ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center}
+.t-photos{background:#3b82f6}.t-documents{background:#f472b6}.t-videos{background:#fb923c}.t-others{background:#10b981}
+.badge{background:#1e3a8a55;color:var(--pri);border-radius:14px;padding:6px 18px;font-size:13px;display:inline-block}
+.act button{background:none;border:0;cursor:pointer;color:var(--mut);padding:4px 6px;font-size:16px}
+.grid .row.h{display:none}.grid .list{background:none;border:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.grid .row{display:flex;flex-direction:column;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.date{color:var(--mut);font-size:13px;letter-spacing:.06em;margin:22px 4px 0}
+.empty{padding:40px;text-align:center;color:var(--mut)}
+.right{padding:36px 30px 36px 0;display:flex;flex-direction:column;gap:24px}
+.drop{border:2px dashed var(--line);background:var(--card);border-radius:20px;padding:34px 20px;text-align:center}
+.drop.over{border-color:var(--pri);background:var(--inp)}
+.drop .up{width:48px;height:48px;border-radius:12px;background:var(--pri);margin:0 auto 22px;display:grid;place-items:center;font-size:26px;color:#fff}
+.drop p{margin:6px 0;font-weight:600}.drop label{display:block;margin:14px 0;font-size:14px;color:var(--mut)}
+.store{background:var(--card);border-radius:20px;padding:26px;border:1px solid var(--line)}
+.pb{height:9px;background:var(--inp);border-radius:9px;margin:16px 0 12px;overflow:hidden}.pb i{display:block;height:100%;background:var(--pri);width:0;transition:width .4s}
+.sr{display:flex;justify-content:space-between;color:var(--mut);margin:14px 0}.sr span:first-child{color:var(--tx)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:10px}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--pri);color:#fff;padding:10px 20px;border-radius:10px;opacity:0;transition:.3s;pointer-events:none}.toast.show{opacity:1}
+@media(max-width:1100px){.app{grid-template-columns:200px 1fr}.right{grid-column:1/-1;padding:0 40px 30px;flex-direction:row}.right>*{flex:1}}
+@media(max-width:720px){.app{display:block}aside{flex-direction:row;flex-wrap:wrap;align-items:center;border-right:0;border-bottom:1px solid var(--line)}.user,.sec,.sp,.tg{display:none}.nav{padding:8px 10px}main{padding:20px 16px}.cats{grid-template-columns:1fr 1fr}.right{flex-direction:column;padding:0 16px 30px}.row{grid-template-columns:48px 1fr 70px;padding:10px 14px}.row>:nth-child(3),.row>:nth-child(4){display:none}.top{flex-wrap:wrap}}
+#auth{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:10}#auth.hide{display:none}
+#af{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:34px;width:min(380px,92vw);display:flex;flex-direction:column;gap:12px}
+#af input{background:var(--inp);border:1px solid var(--line);border-radius:10px;padding:12px 14px;outline:0}#af input:focus{border-color:var(--pri)}
+#ae{color:#f87171;min-height:18px;font-size:14px}
+</style></head>
+<body><div class="app">
+<aside>
+ <div class="logo"><span>🏠</span>HomeVault</div>
+ <div class="user"><div class="av" id="av">A</div><div><b id="un">-</b><br><small id="ur">-</small></div></div>
+ <div class="sec">MENU</div>
+ <button class="nav on" data-v="mine">📁 My Cloud <b id="nMine">0</b></button>
+ <button class="nav" data-v="shared">🔗 Shared Files</button>
+ <button class="nav" data-v="all">🌐 All Files</button>
+ <button class="nav" data-v="trash">🗑️ Trash</button>
+ <div class="sp"></div><button class="nav" id="lo" style="color:#f87171">🚪 Logout</button>
+ <div class="tg"><span>🌙 Dark Mode</span><button class="sw" id="theme" aria-label="Toggle dark mode"></button></div>
+</aside>
+<main>
+ <div class="top"><input id="q" placeholder="Search files by name..." aria-label="Search files"><button class="btn" id="sb">Search</button></div>
+ <div class="tabs" id="tabs"><button class="on" data-v="mine">My Files</button><button data-v="shared">Shared</button><button data-v="all">All Files</button></div>
+ <h2>Categories</h2><div class="cats" id="cats"></div>
+ <div class="bar">
+  <div id="pills" style="display:flex;gap:10px;flex-wrap:wrap"></div><span class="sp" style="flex:1"></span>
+  <select id="sort" aria-label="Sort"><option value="new">Newest upload</option><option value="old">Oldest upload</option><option value="name">Name A–Z</option><option value="size">Largest size</option></select>
+  <button class="vb on" id="vl" aria-label="List view">☰</button><button class="vb" id="vg" aria-label="Grid view">▦</button>
+ </div>
+ <h2 id="rt">Recent Files (0)</h2>
+ <div id="wrap"><div class="list" id="list"></div></div>
+</main>
+<div class="right">
+ <div class="drop" id="drop"><div class="up">⬆</div><p>Drop files here or click to browse</p><div class="mut" style="font-size:14px">Max 500 MB per file</div>
+  <label><input type="checkbox" id="sh"> Share with everyone</label><button class="btn" id="ub">Upload Files</button><input type="file" id="fi" multiple hidden></div>
+ <div class="store"><b style="font-size:17px">Your Storage</b><div class="pb"><i id="pf"></i></div>
+  <div class="sr"><span id="su">0 B used</span><span id="sc">0 files</span></div><hr style="border:0;border-top:1px solid var(--line)"><div id="sl"></div></div>
+</div></div>
+<div id="auth"><form id="af"><h2 style="margin:0">🏠 HomeVault</h2><span class="mut">Log in or create an account. The first account becomes Admin.</span><input id="au" placeholder="Username" autocomplete="username" required><input id="ap" type="password" placeholder="Password (6+ characters)" autocomplete="current-password" required><div id="ae" role="alert"></div><button class="btn" type="submit">Login</button><button class="btn" type="button" id="ar" style="background:var(--inp);color:var(--tx);border:1px solid var(--line)">Create account</button></form></div>
+<div class="toast" id="toast"></div>
+<script>
+const CATS={photos:['📷','Photos'],documents:['📄','Documents'],videos:['🎬','Videos'],others:['📦','Others']};
+const COL={photos:'#3b82f6',documents:'#ec4899',videos:'#f97316',others:'#10b981'};
+const $=s=>document.querySelector(s);
+let token=null,me=null,files=[],stats={count:0,size:0,by:{}},view='mine',cat='all',q='',mode='list';
+try{token=localStorage.getItem('hv-token');me=JSON.parse(localStorage.getItem('hv-user')||'null')}catch(e){}
+const sz=b=>b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':b<1073741824?(b/1048576).toFixed(1)+' MB':(b/1073741824).toFixed(2)+' GB';
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),2200)}
+function day(ts){const d=new Date(ts),n=new Date(),y=new Date(n-864e5),s=x=>x.toDateString();return s(d)===s(n)?'TODAY':s(d)===s(y)?'YESTERDAY':d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}).toUpperCase()}
+
+async function api(path,opt={}){
+ opt.headers={...(opt.headers||{}),Authorization:'Bearer '+token};
+ const r=await fetch(path,opt);
+ if(r.status===401){logout();throw new Error('Please log in again')}
+ if(!r.ok){const j=await r.json().catch(()=>({}));throw new Error(j.error||'Something went wrong')}
+ return r;
+}
+async function load(){try{const j=await(await api('/api/files?view='+view)).json();files=j.files;stats=j.stats;render()}catch(e){toast(e.message)}}
+
+function enter(){$('#auth').classList.add('hide');$('#un').textContent=me.username;$('#ur').textContent=me.role;$('#av').textContent=me.username[0].toUpperCase();load()}
+function logout(){token=null;me=null;try{localStorage.removeItem('hv-token');localStorage.removeItem('hv-user')}catch(e){}$('#auth').classList.remove('hide')}
+async function authCall(kind){
+ $('#ae').textContent='';
+ try{
+  const r=await fetch('/api/'+kind,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('#au').value.trim(),password:$('#ap').value})});
+  const j=await r.json();if(!r.ok)throw new Error(j.error);
+  token=j.token;me=j.user;try{localStorage.setItem('hv-token',token);localStorage.setItem('hv-user',JSON.stringify(me))}catch(e){}
+  $('#ap').value='';enter();
+ }catch(e){$('#ae').textContent=e.message}
+}
+$('#af').onsubmit=e=>{e.preventDefault();authCall('login')};
+$('#ar').onclick=()=>authCall('register');
+$('#lo').onclick=logout;
+
+function render(){
+ $('#nMine').textContent=stats.count;
+ $('#cats').innerHTML=Object.entries(CATS).map(([k,[i,n]])=>{const c=files.filter(f=>f.cat===k).length;return`<button class="cat c-${k}" data-c="${k}"><span class="i">${i}</span><b>${n}</b><span>${c} file${c==1?'':'s'}</span></button>`}).join('');
+ $('#pills').innerHTML=['all',...Object.keys(CATS)].map(k=>`<button class="pill ${cat===k?'on':''}" data-c="${k}">${k==='all'?'All':CATS[k][1]}</button>`).join('');
+ let l=files.filter(f=>(cat==='all'||f.cat===cat)&&f.name.toLowerCase().includes(q.toLowerCase()));
+ const s=$('#sort').value;l.sort((a,b)=>s==='new'?b.at-a.at:s==='old'?a.at-b.at:s==='name'?a.name.localeCompare(b.name):b.size-a.size);
+ $('#rt').textContent=(view==='trash'?'Trash':'Recent Files')+` (${l.length})`;
+ let h='<div class="row h"><span></span><span>NAME</span><span>TYPE</span><span>SIZE</span><span>STATUS</span><span></span></div>',last='';
+ if(!l.length)h+=`<div class="empty">${view==='trash'?'Trash is empty.':'No files here yet. Drop one on the right to start.'}</div>`;
+ l.forEach(f=>{const d=day(f.at),own=f.owner===me.username;if(mode==='list'&&d!==last){h+=`<div class="date">${d}</div>`;last=d}
+  h+=`<div class="row"><div class="ic t-${f.cat}">${CATS[f.cat][0]}</div><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}</span><span class="mut">${CATS[f.cat][1]}</span><span class="mut">${sz(f.size)}</span><span><span class="badge">${f.shared?'🔗 ':''}${esc(f.owner)}</span></span>
+  <span class="act">${f.trash?`<button data-a="restore" data-id="${f.id}" title="Restore">↩</button><button data-a="purge" data-id="${f.id}" title="Delete forever">✕</button>`:`<button data-a="dl" data-id="${f.id}" title="Download">⬇</button>${own?`<button data-a="trash" data-id="${f.id}" title="Move to trash">🗑</button>`:''}`}</span></div>`});
+ $('#wrap').className=mode==='grid'?'grid':'';
+ $('#list').innerHTML=h;
+ $('#su').textContent=sz(stats.size)+' used';$('#sc').textContent=stats.count+' files';
+ $('#pf').style.width=Math.min(100,stats.size/5368709.12)+'%';
+ $('#sl').innerHTML=Object.entries(CATS).map(([k,[i,n]])=>{const a=stats.by[k]||{n:0,size:0};return`<div class="sr"><span><i class="dot" style="background:${COL[k]}"></i>${n}</span><span>${a.n} · ${sz(a.size)}</span></div>`}).join('');
+}
+async function add(list){
+ const fd=new FormData();let n=0;
+ for(const f of list){if(f.size>500*1048576){toast(f.name+' is over 500 MB');continue}fd.append('files',f);n++}
+ if(!n)return;fd.append('shared',$('#sh').checked);
+ toast('Uploading '+n+' file'+(n>1?'s':'')+'...');
+ try{await api('/api/upload',{method:'POST',body:fd});await load();toast('Uploaded '+n+' file'+(n>1?'s':''))}catch(e){toast(e.message)}
+}
+function setView(v){view=v;document.querySelectorAll('.nav[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));load()}
+document.addEventListener('click',async e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.v)return setView(t.dataset.v);
+ if(t.dataset.c){cat=cat===t.dataset.c&&t.classList.contains('cat')?'all':t.dataset.c;return render()}
+ const f=files.find(x=>x.id===t.dataset.id),a=t.dataset.a;if(!f)return;
+ try{
+  if(a==='dl'){const b=await(await api('/api/files/'+f.id+'/download')).blob();const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=f.name;l.click();setTimeout(()=>URL.revokeObjectURL(l.href),4000);toast('Downloading '+f.name)}
+  if(a==='trash'||a==='restore'){await api('/api/files/'+f.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({trash:a==='trash'})});await load();toast(a==='trash'?'Moved to trash':'Restored')}
+  if(a==='purge'){await api('/api/files/'+f.id,{method:'DELETE'});await load();toast('Deleted forever')}
+ }catch(err){toast(err.message)}
+});
+$('#q').oninput=e=>{q=e.target.value;render()};$('#sb').onclick=render;$('#sort').onchange=render;
+$('#vl').onclick=()=>{mode='list';$('#vl').classList.add('on');$('#vg').classList.remove('on');render()};
+$('#vg').onclick=()=>{mode='grid';$('#vg').classList.add('on');$('#vl').classList.remove('on');render()};
+$('#ub').onclick=e=>{e.stopPropagation();$('#fi').click()};$('#drop').onclick=e=>{if(!e.target.closest('label,button'))$('#fi').click()};
+$('#fi').onchange=e=>{add([...e.target.files]);e.target.value=''};
+const dz=$('#drop');['dragover','dragenter'].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.add('over')}));
+['dragleave','drop'].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.remove('over')}));
+dz.addEventListener('drop',e=>add([...e.dataTransfer.files]));
+$('#theme').onclick=()=>{const r=document.documentElement,d=getComputedStyle(r).getPropertyValue('--bg').trim()==='#0f172a';r.dataset.theme=d?'light':'dark';try{localStorage.setItem('hv-theme',r.dataset.theme)}catch(e){}};
+try{const t=localStorage.getItem('hv-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+if(token&&me)enter();
+</script></body></html>
