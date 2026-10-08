@@ -1,7 +1,11 @@
 const express = require('express'), multer = require('multer'), bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken'), fs = require('fs'), path = require('path'), crypto = require('crypto');
+const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const multerS3 = require('multer-s3');
 
 const PORT = process.env.PORT || 3000;
+const BUCKET = process.env.S3_BUCKET || 'homevault-web-app';
+const s3 = new S3Client({ region: process.env.AWS_REGION || 'ap-south-1' });
 const SECRET = process.env.JWT_SECRET || 'change-this-secret';
 const DATA = path.join(__dirname, 'data'), UP = path.join(__dirname, 'uploads');
 fs.mkdirSync(DATA, { recursive: true }); fs.mkdirSync(UP, { recursive: true });
@@ -13,7 +17,12 @@ const save = () => fs.writeFileSync(DBF, JSON.stringify(db, null, 2));
 
 // ---- file storage (disk now; replace with S3/Firebase in the multer storage) ----
 const upload = multer({
-  storage: multer.diskStorage({ destination: UP, filename: (req, f, cb) => cb(null, crypto.randomUUID()) }),
+  storage: multerS3({
+    s3,
+    bucket: BUCKET,
+    key: (req, f, cb) => cb(null, crypto.randomUUID()),
+    contentType: multerS3.AUTO_CONTENT_TYPE
+  }),
   limits: { fileSize: 500 * 1024 * 1024 }
 });
 
@@ -70,15 +79,26 @@ app.post('/api/upload', auth, upload.array('files', 20), (req, res) => {
   const shared = req.body.shared === 'true';
   (req.files || []).forEach(f => {
     const name = Buffer.from(f.originalname, 'latin1').toString('utf8');
-    db.files.push({ id: crypto.randomUUID(), disk: f.filename, name, size: f.size, cat: kind(name, f.mimetype), at: Date.now(), owner: req.user.id, shared, trash: false });
+    db.files.push({ id: crypto.randomUUID(), key: f.key, name, size: f.size, cat: kind(name, f.mimetype), at: Date.now(), owner: req.user.id, shared, trash: false });
   });
   save(); res.json({ ok: true, count: (req.files || []).length });
 });
 
-app.get('/api/files/:id/download', auth, (req, res) => {
-  const f = db.files.find(x => x.id === req.params.id);
-  if (!f || !canSee(req.user, f)) return res.status(404).json({ error: 'File not found' });
-  res.download(path.join(UP, f.disk), f.name);
+app.get('/api/files/:id/download', auth, async (req, res) => {
+  try {
+    const f = db.files.find(x => x.id === req.params.id);
+    if (!f || !canSee(req.user, f)) return res.status(404).json({ error: 'File not found' });
+
+    // Support older files that are still stored on local disk.
+    if (!f.key && f.disk) return res.download(path.join(UP, f.disk), f.name);
+
+    const result = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: f.key }));
+    res.attachment(f.name);
+    result.Body.pipe(res);
+  } catch (err) {
+    console.error('Download failed:', err.message);
+    if (!res.headersSent) res.status(500).json({ error: 'Download failed' });
+  }
 });
 
 app.patch('/api/files/:id', auth, (req, res) => {
@@ -89,11 +109,25 @@ app.patch('/api/files/:id', auth, (req, res) => {
   save(); res.json(out(f));
 });
 
-app.delete('/api/files/:id', auth, (req, res) => {
-  const f = db.files.find(x => x.id === req.params.id && (x.owner === req.user.id || req.user.role === 'Admin'));
-  if (!f) return res.status(404).json({ error: 'File not found' });
-  fs.rm(path.join(UP, f.disk), { force: true }, () => {});
-  db.files = db.files.filter(x => x !== f); save(); res.json({ ok: true });
+app.delete('/api/files/:id', auth, async (req, res) => {
+  try {
+    const f = db.files.find(x => x.id === req.params.id && (x.owner === req.user.id || req.user.role === 'Admin'));
+    if (!f) return res.status(404).json({ error: 'File not found' });
+
+    if (f.key) {
+      await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: f.key }));
+    }
+    if (f.disk) {
+      await fs.promises.rm(path.join(UP, f.disk), { force: true });
+    }
+
+    db.files = db.files.filter(x => x !== f);
+    save();
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Delete failed:', err.message);
+    if (!res.headersSent) res.status(500).json({ error: 'Delete failed' });
+  }
 });
 
 app.use((err, req, res, next) => res.status(err.code === 'LIMIT_FILE_SIZE' ? 413 : 500).json({ error: err.code === 'LIMIT_FILE_SIZE' ? 'File is over 500 MB' : 'Server error' }));
